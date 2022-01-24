@@ -1,10 +1,12 @@
 ﻿using System.Text.Json.Serialization;
+using CORE.ENSEK.Attributes;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace CORE.ENSEK.Models;
 
-public class MeterReading
+[BsonCollection("meterreadings")]
+public class MeterReading : Document
 {
     [BsonRepresentation(BsonType.Int32)]
     public int? AccountId { get; set; }

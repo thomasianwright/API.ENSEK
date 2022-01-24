@@ -10,7 +10,6 @@ public class Account : Document
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public int? AccountId { get; set; }
-    public IEnumerable<MeterReading>? Readings { get; set; }
     
     [BsonIgnore]
     public string DbId => Id.ToString();

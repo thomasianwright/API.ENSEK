@@ -49,7 +49,7 @@ public class MongoRepository<TDocument> : IMongoRepository<TDocument>
         return _collection.Find(filterExpression).FirstOrDefault();
     }
 
-    public virtual Task<TDocument> FindOneAsync(Expression<Func<TDocument, bool>> filterExpression)
+    public virtual Task<TDocument?> FindOneAsync(Expression<Func<TDocument, bool>> filterExpression)
     {
         return Task.Run(() => _collection.Find(filterExpression).FirstOrDefaultAsync());
     }

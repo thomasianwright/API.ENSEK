@@ -2,13 +2,17 @@
 using System.Text.RegularExpressions;
 using CORE.ENSEK.Models;
 using CsvHelper;
+using Microsoft.Extensions.Logging;
 
 namespace CORE.ENSEK.Services;
 
 public class CsvService
 {
-    public CsvService()
+    private readonly ILogger<CsvService> _logger;
+
+    public CsvService(ILogger<CsvService> logger)
     {
+        _logger = logger;
     }
 
     public Task<(int failed, List<MeterReading> records)> ParseMeterReadings(string data)
@@ -34,17 +38,19 @@ public class CsvService
                         {
                             AccountId = csv.GetField<int>("AccountId"),
                             MeterValue = csv.GetField<string>("MeterReadValue"),
-                            MeterReadAt = DateTime.Parse(csv.GetField<string>("MeterReadingDateTime")),
+                            MeterReadAt = DateTime.ParseExact(csv.GetField<string>("MeterReadingDateTime"), "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture),
                         };
 
                         records.Add(record);
                         continue;
                     }
-
+                    
+                    _logger.LogError($"Invalid Meter Read Value: {csv.GetField<string>("MeterReadValue")}");
                     failed++;
                 }
                 catch (Exception e)
                 {
+                    _logger.LogError(e.Message);
                     failed++;
                 }
             }

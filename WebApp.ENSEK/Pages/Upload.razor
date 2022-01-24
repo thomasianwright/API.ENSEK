@@ -1,0 +1,60 @@
+﻿@page "/Upload"
+@using WebApp.Core.ENSEK.UseCases
+@using System.Runtime.InteropServices
+
+<h3>Upload</h3>
+
+<MudContainer>
+    <InputFile id="fileInput" OnChange="SelectedFile" hidden multiple />
+    
+    <MudButton HtmlTag="label"
+               Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Filled.CloudUpload"
+               for="fileInput">
+        Select File
+    </MudButton>
+    
+    <MudButton OnClick="UploadAsync">
+        Upload Files
+    </MudButton>
+</MudContainer>
+
+@code {
+    [Inject]
+    public IAccount Account { get; set; }   
+    
+    [Inject]
+    public ISnackbar Snackbar { get; set; }
+    
+    IBrowserFile _file;
+    
+    private void SelectedFile(InputFileChangeEventArgs obj)
+    {
+        _file = obj.File;
+    }
+    
+    public async Task UploadAsync()
+    {
+        if (_file == null)
+        {
+            return;
+        }
+        
+        byte[] buffer = new byte[_file.Size];
+        
+        await _file.OpenReadStream().ReadAsync(buffer);
+
+        var uploadRequest = new UploadRequest
+        {
+            Data = Convert.ToBase64String(buffer)
+        };
+
+        var response = await Account.UploadMeterReadings(uploadRequest);
+        if (response.Success < 0) response.Success = 0;
+
+        Snackbar.Add($"Successful: {response.Success} | Failed: {response.Failed}");
+
+        _file = null;
+    }
+}
